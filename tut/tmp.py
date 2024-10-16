@@ -3,6 +3,7 @@ import numpy as np
 import re
 import sys
 from datetime import datetime
+from datetime import date
 import numpy as np
 
 BLACK = '\033[30m'
@@ -24,7 +25,6 @@ WHITE = '\033[97m'
 
 RESET = '\033[0m' # called to return to standard terminal text color
 
-
 gv = {
       'pl':pl,
       'datetime':datetime,
@@ -43,10 +43,7 @@ def ep(title,stmt):
   lv = {'ans' : "not anser"}
   exec(stmt,gv,lv)
   print(lv["ans"])
-  input(">")
 
-def _epn(title,stmt,n):
-    pass
 
 def epn(title,stmt,n):
   print("---------------------------------------------")
@@ -67,18 +64,6 @@ def epn(title,stmt,n):
          print(lv['ans' + str(i+1)])
   input(">")
 
-def epn_org(title,stmt,n):
-  print("---------------------------------------------")
-  print(GREEN + title + RESET)
-  print(" " + BLUE + stmt + RESET)
-  lv = {}
-  for i in range(n):
-      lv['ans' + str(i+1)] = 'not anser'
-
-  exec(stmt,gv,lv)
-  for i in range(n):
-      print('=== ' + 'ans' + str(i+1))
-      print(lv['ans' + str(i+1)])
 def vp(title,str):
   print("---------------------------------------------")
   print(GREEN + title + RESET)
@@ -121,72 +106,30 @@ def vr(title,str):
            return r
         else:
            eval(st)
-  input(">")
 
-def v_(title,str):
-  print("---------------------------------------------")
-  print(GREEN + title + RESET)
-  print(" " + BLUE + str + RESET)
-  #print("---------------------------------------------")
-  r = eval(str)
-  print(r)
+###############################################
 
-# https://polars-ja.github.io/docs-ja/user-guide/concepts/data-types/categoricals/#enum-vs-categorical
-epn("001 Enum vs Categorical",
+dataset = pl.read_csv("../csv/pokemon.csv")
+
+
+gv["df"] = dataset
+
+
+
+epn("001 ",
 """
-df = pl.DataFrame(
-    {
-        "nrs": [1, 2, 3, None, 5],
-        "names": ["foo", "ham", "spam", "egg", "spam"],
-        "random": np.random.rand(5),
-        "groups": ["A", "A", "B", "C", "B"],
-        "a": [
-            "http://vote.com/ballon_dor?candidate=messi&ref=polars",
-            "http://vote.com/ballon_dor?candidat=jorginho&ref=polars",
-            "http://vote.com/ballon_dor?candidate=ronaldo&ref=polars",
-            "http://vote.com/ballon_dor?candidate=ronaldo&ref=polars",
-            "http://vote.com/ballon_dor?candidate=ronaldo&ref=polars",
-        ]
-    }
+ans1 = df.select(
+    "Type 1",
+    "Type 2",
+    pl.col("Attack").mean().over("Type 1").alias("avg_attack_by_type"),
+    pl.col("Defense")
+    .mean()
+    .over(["Type 1", "Type 2"])
+    .alias("avg_defense_by_type_combination"),
+    pl.col("Attack").mean().alias("avg_attack"),
 )
 
-ans1 = "DataFrame", df
-
-ans2 = "select alias",  df.select(
-    (pl.col("nrs") + 5).alias("nrs + 5"),
-    (pl.col("nrs") - 5).alias("nrs - 5"),
-)
-ans3 = "with_columns alias",  df.with_columns(
-    (pl.col("nrs") + 5).alias("nrs + 5"),
-    (pl.col("nrs") - 5).alias("nrs - 5"),
-)
-
-ans4 = "unique", df.select(
-    pl.col("names").n_unique().alias("unique"),
-    pl.approx_n_unique("names").alias("unique_approx"),
-)
-
-ans5 = "df_conditional",  df.select(
-    pl.col("nrs"),
-    pl.when(pl.col("nrs") > 2)
-    .then(pl.lit(True))
-    .otherwise(pl.lit(False))
-    .alias("conditional"),
-)
-
-ans6 = "Partial Extraction",  df.select(
-    pl.col("a").str.extract(r"candidate=(\w+)", group_index=1),
-)
-
-ans7 = "Replace",  df.with_columns(
-    pl.col("names").str.replace(r"foo", "FOO"),
-)
-tmp = df.with_columns(
-    pl.col("names").str.replace(r"foo", "FOO")
-)
-
-ans8 = "Replace dublue",  tmp.with_columns(
-    pl.col("names").str.replace(r"egg", "EGG")
-)
 """
-,8)
+,1)
+
+

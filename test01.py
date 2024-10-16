@@ -64,6 +64,8 @@ def v(title,str):
         r = eval(st)
         print(r)
 
+  input(">")
+
 def v_(title,str):
   print("---------------------------------------------")
   print(GREEN + title + RESET)

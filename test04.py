@@ -43,6 +43,7 @@ def ep(title,stmt):
   lv = {'ans' : "not anser"}
   exec(stmt,gv,lv)
   print(lv["ans"])
+  input(">")
 
 def _epn(title,stmt,n):
     pass
@@ -64,6 +65,7 @@ def epn(title,stmt,n):
       else:
          print('=== ' + 'ans' + str(i+1))
          print(lv['ans' + str(i+1)])
+  input(">")
 
 def epn_org(title,stmt,n):
   print("---------------------------------------------")
@@ -96,6 +98,7 @@ def vp(title,str):
              continue
         r = eval(st)
         print(r)
+  input(">")
 
 def vr(title,str):
   print("---------------------------------------------")
@@ -118,6 +121,7 @@ def vr(title,str):
            return r
         else:
            eval(st)
+  input(">")
 
 def v_(title,str):
   print("---------------------------------------------")

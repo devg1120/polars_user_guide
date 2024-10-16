@@ -43,6 +43,7 @@ def v(title,str):
              continue
         r = eval(st)
         print(r)
+  input(">")
 
 def v_(title,str):
   print("---------------------------------------------")
