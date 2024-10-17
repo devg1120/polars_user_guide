@@ -74,7 +74,7 @@ def epn(title,stmt,n):
   input(">")
 
 
-def epna(title,stmt,last):
+def epna(title,stmt):
   ans_list = re.findall('ans[1-9]',stmt)
   n = len(ans_list)
   print("---------------------------------------------")
@@ -94,8 +94,7 @@ def epna(title,stmt,last):
       else:
          print('=== ' + 'ans' + str(i+1))
          print(lv['ans' + str(i+1)])
-  if not last:
-     input(">")
+  input(">")
 
 def vp(title,str):
   print("---------------------------------------------")
