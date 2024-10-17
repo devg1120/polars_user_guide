@@ -5,6 +5,7 @@ import sys
 from pygments import highlight
 from pygments.lexers import Python3Lexer
 from pygments.formatters import TerminalFormatter
+from pygments.formatters import Terminal256Formatter
 from datetime import datetime
 from datetime import date
 import numpy as np
@@ -35,8 +36,8 @@ gv = {
      }
 
 def syntx_highlight(code):
-    #print(highlight(code[1:-1], Python3Lexer(), TerminalFormatter()), end="")
-    print(highlight(code, Python3Lexer(), TerminalFormatter()), end="")
+    #print(highlight(code, Python3Lexer(), TerminalFormatter()), end="")
+    print(highlight(code, Python3Lexer(), Terminal256Formatter()), end="")
 
 def er(title,stmt):
   lv = {'ans' : "not anser"}
@@ -74,13 +75,14 @@ def epn(title,stmt,n):
   input(">")
 
 
-def epna(title,stmt,last):
+def epna(title,stmt,desc,last,silent):
   ans_list = re.findall('ans[1-9]',stmt)
   n = len(ans_list)
   print("---------------------------------------------")
-  print(GREEN + title + RESET)
-  #print(" " + BLUE + stmt + RESET)
-  syntx_highlight(stmt)
+  print(GREEN + title + RESET + "     " + BRIGHT_YELLOW + desc + RESET)
+  if not silent  :
+    print(" " + BLUE + stmt + RESET)
+    #syntx_highlight(stmt)
   lv = {}
   for i in range(n):
       lv['ans' + str(i+1)] = 'not anser'
@@ -89,13 +91,17 @@ def epna(title,stmt,last):
   for i in range(n):
       if isinstance(lv['ans' + str(i+1)], tuple):
          tup = lv['ans' + str(i+1)]
-         print('==== ' + title +':  ' +  'ans' + str(i+1) + " " * 3  + RED + tup[0] +RESET) 
-         print(tup[1])
+         if not silent:
+           print(BLUE + '=== ' + title +':  ' +  'ans' + str(i+1) + RESET + " " * 3  + RED + tup[0] +RESET) 
+           print(tup[1])
       else:
-         print('=== ' + 'ans' + str(i+1))
-         print(lv['ans' + str(i+1)])
-  if not last:
-     input(">")
+         if not silent:
+           #print(BLUE + '=== ' + 'ans' + str(i+1))
+           print(BLUE + '=== ' + title +':  ' +  'ans' + str(i+1) + RESET ) 
+           print(lv['ans' + str(i+1)])
+  if not silent  :
+     if not last :
+        input(">")
 
 def vp(title,str):
   print("---------------------------------------------")
@@ -156,6 +162,7 @@ def pg_read(file):
     
     prg_list = []
     prg_dict = {}
+    desc_dict = {}
     
     #with open(file,encoding='utf-8') as f:
     try:
@@ -165,7 +172,11 @@ def pg_read(file):
         comment = False
         pgsource = ""
         name = ""
+        desc = ""
+        ln = 0
+        name_def_ln = 0
         for line in lines:
+            ln += 1
             if re.match("<!--",line):
                 comment = True 
             elif re.match("-->",line):
@@ -177,6 +188,12 @@ def pg_read(file):
                 #print("             match #NAME")
                 r = re.match(r"^\#NAME\s+(\S+)",line)
                 name = r.group(1)
+                name_def_ln = ln
+                #print(name)
+            elif re.match("#DESC",line):
+                #print("             match #NAME")
+                r = re.match(r"^\#DESC\s+(\S+.*)$",line)
+                desc = r.group(1)
                 #print(name)
             elif re.match("#START",line):
                 #print("             match #START")
@@ -187,15 +204,19 @@ def pg_read(file):
                 pgline = False
                 #print("name", name)
                 #print("pgsource",pgsource)
+                if name  in prg_dict:
+                    print("line:" +str(name_def_ln) + " " + name + " is dupulicated")
+                    sys.exit()
                 prg_list.append(name)
                 prg_dict[name] = pgsource
+                desc_dict[name] = desc
             else:
                 if pgline:
                     pgsource += line
     except Exception as e:
         print(e)
 
-    return (prg_list, prg_dict)
+    return (prg_list, prg_dict, desc_dict)
 
 
 
