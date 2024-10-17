@@ -36,8 +36,8 @@ gv = {
      }
 
 def syntx_highlight(code):
-    #print(highlight(code, Python3Lexer(), TerminalFormatter()), end="")
-    print(highlight(code, Python3Lexer(), Terminal256Formatter()), end="")
+    print(highlight(code, Python3Lexer(), TerminalFormatter()), end="")
+    #print(highlight(code, Python3Lexer(), Terminal256Formatter()), end="")
 
 def er(title,stmt):
   lv = {'ans' : "not anser"}
@@ -81,8 +81,8 @@ def epna(title,stmt,desc,last,silent):
   print("---------------------------------------------")
   print(GREEN + title + RESET + "     " + BRIGHT_YELLOW + desc + RESET)
   if not silent  :
-    print(" " + BLUE + stmt + RESET)
-    #syntx_highlight(stmt)
+    #print(" " + BLUE + stmt + RESET)
+    syntx_highlight(stmt)
   lv = {}
   for i in range(n):
       lv['ans' + str(i+1)] = 'not anser'
@@ -177,6 +177,9 @@ def pg_read(file):
         name_def_ln = 0
         for line in lines:
             ln += 1
+            if re.match("-EXIT",line):
+               break
+
             if re.match("<!--",line):
                 comment = True 
             elif re.match("-->",line):
@@ -187,13 +190,21 @@ def pg_read(file):
             if re.match("#NAME",line):
                 #print("             match #NAME")
                 r = re.match(r"^\#NAME\s+(\S+)",line)
-                name = r.group(1)
-                name_def_ln = ln
+                try:
+                  name = r.group(1)
+                  name_def_ln = ln
+                except Exception as e:
+                  name_def_ln = ln
+                  print(RED + "line:" + str(ln) + " name not define" + RESET)
+                  sys.exit()
                 #print(name)
             elif re.match("#DESC",line):
                 #print("             match #NAME")
                 r = re.match(r"^\#DESC\s+(\S+.*)$",line)
-                desc = r.group(1)
+                try:
+                   desc = r.group(1)
+                except Exception as e:
+                    pass
                 #print(name)
             elif re.match("#START",line):
                 #print("             match #START")

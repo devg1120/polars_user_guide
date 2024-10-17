@@ -4,21 +4,24 @@
 #DESC 
 #START
 #END
+#TITLE Basic operator
 -->
 
-#NAME PG001
+#NAME  PG001
+#DESC 
 #START
-ans1 = "OK", df.select(
-    "Type 1",
-    "Type 2",
-    pl.col("Attack").mean().over("Type 1").alias("avg_attack_by_type"),
-    pl.col("Defense")
-    .mean()
-    .over(["Type 1", "Type 2"])
-    .alias("avg_defense_by_type_combination"),
-    pl.col("Attack").mean().alias("avg_attack"),
+df = pl.DataFrame(
+    {
+        "nrs": [1, 2, 3, None, 5],
+        "names": ["foo", "ham", "spam", "egg", None],
+        "random": np.random.rand(5),
+        "groups": ["A", "A", "B", "C", "B"],
+    }
 )
+ans1 = df
 #END
+
+-EXIT
 
 #NAME PG002 
 #DESC Categorical 
