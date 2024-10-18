@@ -24,7 +24,7 @@ def main():
           help()
       file = arg1
 
-   (pg_list, pg_dict, desc_dict) = PF.pg_read(file)
+   (title, pg_list, pg_dict, desc_dict) = PF.pg_read(file)
    #print(pg_list)
    #print(pg_dict)
    #print(desc_dict)
@@ -57,8 +57,15 @@ def main():
        pgv_list.append(gv)
 
 
-   dataset = PF.pl.read_csv("../csv/pokemon.csv")
-   PF.gv["df"] = dataset
+   #dataset = PF.pl.read_csv("../csv/pokemon.csv")
+   #PF.gv["df"] = dataset
+
+   if len(title) > 1 :
+      print("")
+      print("/********************************************/")
+      print("/*** "+ title, end = "")
+      print(" " * (37 - len(title)) + "***/")
+      print("/********************************************/")
 
    for i,test_case in enumerate(pg_list):
       last = False

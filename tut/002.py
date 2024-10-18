@@ -7,8 +7,10 @@
 #TITLE Basic operator
 -->
 
+#TITLE Basic operator
+
 #NAME  PG001
-#DESC 
+#DESC  Try first
 #START
 df = pl.DataFrame(
     {
@@ -21,84 +23,42 @@ df = pl.DataFrame(
 ans1 = df
 #END
 
--EXIT
-
-#NAME PG002 
-#DESC Categorical 
+<!--
+https://polars-ja.github.io/docs-ja/user-guide/concepts/lazy-vs-eager/
+-->
+#NAME  PG002
+#DESC  Lazy / eager API
 #START
-pl.enable_string_cache()
-cat_series = pl.Series(["Brown", "Panda", "Polar"], dtype=pl.Categorical)
-cat_series2 = pl.Series(["Polar", "Panda", "Black"], dtype=pl.Categorical)
-ans1 = cat_series == cat_series2
-#END
-
-#NAME PG003 
-#DESC Enum
-#START
-pl.enable_string_cache()
-dtype = pl.Enum(["Polar", "Panda", "Brown"])
-cat_series = pl.Series(["Brown", "Panda", "Polar"], dtype=dtype)
-cat_series2 = pl.Series(["Polar", "Panda", "Brown"], dtype=dtype)
-ans1 = cat_series == cat_series2
-#END
-
-#NAME PG004 
-#DESC Data struct
-#START
-ans1 = pl.Series("a", [1, 2, 3, 4, 5])
-
-df = pl.DataFrame(
-    {
-        "integer": [1, 2, 3, 4, 5],
-        "date": [
-            datetime(2022, 1, 1),
-            datetime(2022, 1, 2),
-            datetime(2022, 1, 3),
-            datetime(2022, 1, 4),
-            datetime(2022, 1, 5),
-        ],
-        "float": [4.0, 5.0, 6.0, 7.0, 8.0],
-    }
-)
-
-ans2 = df.head(3)
-ans3 = df.tail(3)
-ans4 = df.describe()
-#END
-
-#NAME PG005
-#DESC  context
-#START
-df = pl.DataFrame(
-    {
-        "nrs": [1, 2, 3, None, 5],
-        "names": ["foo", "ham", "spam", "egg", None],
-        "random": np.random.rand(5),
-        "groups": ["A", "A", "B", "C", "B"],
-    }
-)
+df = pl.read_csv("sample_UTF-8.csv")
 ans1 = df
-ans2 = "select", df.select(
-    pl.sum("nrs"),
-    pl.col("names").sort(),
-    pl.col("names").first().alias("first name"),
-    (pl.mean("nrs") * 10).alias("10xnrs"),
-)
-ans3 = "with_columns", df.with_columns(
-    pl.sum("nrs").alias("nrs_sum"),
-    pl.col("random").count().alias("count"),
-)
+df_small = df.filter(pl.col("age") > 60)
+df_agg = df_small.group_by("seibetsu").agg(pl.col("totalmoney").mean())
+ans2 = df_agg
+#END
 
-ans4 = "filter", df.filter(pl.col("nrs") > 2)
-
-ans5 = "group_by", df.group_by("groups").agg(
-    pl.sum("nrs"),  # sum nrs by groups
-    pl.col("random").count().alias("count"),  # count group members
-    # sum random where name != null
-    pl.col("random").filter(pl.col("names").is_not_null()).sum().name.suffix("_sum"),
-    pl.col("names").reverse().alias("reversed names"),
+#NAME  PG003
+#DESC  SCAN collect
+#START
+q = (
+    pl.scan_csv("sample_UTF-8.csv")
+    .filter(pl.col("age") > 60)
+    .group_by("seibetsu")
+    .agg(pl.col("totalmoney").mean())
 )
 
+ans1 = q.collect()
+#END
+
+#NAME  PG004
+#DESC  Streming
+#START
+q1 = (
+    pl.scan_csv("sample_UTF-8.csv")
+    .filter(pl.col("age") > 60)
+    .group_by("seibetsu")
+    .agg(pl.col("totalmoney").mean())
+)
+ans1 = q1.collect(streaming=True)
 #END
 
 
@@ -108,4 +68,5 @@ ans5 = "group_by", df.group_by("groups").agg(
 #DESC 
 #START
 #END
+--EXIT
 -->

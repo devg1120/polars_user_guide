@@ -32,7 +32,6 @@ RESET = '\033[0m'
 gv = {
       'pl':pl,
       'datetime':datetime,
-      'date':date,
       'np':np,
      }
 
@@ -170,23 +169,7 @@ def pg_read(file):
     prg_list = []
     prg_dict = {}
     desc_dict = {}
-
-    global_v = False
-    global_name = "df"
-    global_source = """
-pl.DataFrame(
-    {
-        "nrs": [1, 2, 3, None, 5],
-        "names": ["foo", "ham", "spam", "egg", "spam"],
-        "random": np.random.rand(5),
-        "groups": ["A", "A", "B", "C", "B"],
-    }
-)
-"""
-    global_name = ""
-    global_source = ""
-    #gv[global_name] = eval(global_source)
-
+    
     #with open(file,encoding='utf-8') as f:
     try:
         f = open(file,encoding='utf-8') 
@@ -200,18 +183,15 @@ pl.DataFrame(
         name_def_ln = 0
         for line in lines:
             ln += 1
+            if re.match("-EXIT",line):
+               break
 
             if re.match("<!--",line):
                 comment = True 
             elif re.match("-->",line):
                 comment = False
-
             if comment:
                 continue
-            if re.match("-EXIT",line):
-               break
-            if re.match("--EXIT",line):
-               break
             #print(line.rstrip())
             if re.match("#NAME",line):
                 #print("             match #NAME")
@@ -230,14 +210,14 @@ pl.DataFrame(
                 try:
                    desc = r.group(1)
                 except Exception as e:
-                   desc = ""
+                    pass
                 #print(name)
             elif re.match("#TITLE",line):
                 r = re.match(r"^\#TITLE\s+(\S+.*)$",line)
                 try:
                    title = r.group(1)
                 except Exception as e:
-                   title = ""
+                    pass
             elif re.match("#START",line):
                 #print("             match #START")
                 pgline = True
@@ -253,24 +233,9 @@ pl.DataFrame(
                 prg_list.append(name)
                 prg_dict[name] = pgsource
                 desc_dict[name] = desc
-            elif re.match("#GLOBAL_NAME",line):
-                r = re.match(r"^\#GLOBAL_NAME\s+(\S+.*)$",line)
-                try:
-                   global_name = r.group(1)
-                except Exception as e:
-                    pass
-            elif re.match("#GLOBAL_START",line):
-                global_v = True
-                global_source = ""
-            elif re.match("#GLOBAL_END",line):
-                global_v = False
-                gv[global_name] = eval(global_source, gv)
-                print("set global: " + global_name);
             else:
                 if pgline:
                     pgsource += line
-                elif global_v:
-                    global_source += line
     except Exception as e:
         print(e)
 
