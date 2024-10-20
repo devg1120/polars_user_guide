@@ -1,0 +1,188 @@
+<!--
+https://qiita.com/nkay/items/9cfb2776156dc7e054c8
+
+-->
+
+#TITLE pandasから移行する人向け polars使用ガイド
+
+
+#GLOBAL_NAME df
+#GLOBAL_START
+pl.DataFrame(
+    {
+        "Integer": [1, 2, 3, 4],
+        "Float": np.array([1, 2, 3, 4], dtype=float),
+        "Datetime": [datetime(2022, 4, 1)] * 4,
+        "String": ["test", "train", "test", "train"],
+    }
+)
+#GLOBAL_END
+
+
+#NAME PG001
+#DESC 
+#START
+# []を使った行の選択
+ans1 = df[0]
+ans2 = df[1:3]
+#END
+
+#NAME PG002
+#DESC 
+#START
+# []を使った行の選択
+rng = np.random.default_rng(5)
+df_num = pl.DataFrame(rng.integers(0, 10, (6, 3)), schema="ABC")
+
+ans1 = df_num
+ans2 = df_num.filter(pl.col("A") > 5)
+ans3 = df_num.filter((pl.col("A") < pl.col("B")) & (pl.col("C") < 5))
+ans4 = df_num.filter(
+    pl.col("A") < pl.col("B"),
+    pl.col("C") < 5,
+)
+
+ans5 = df_num.filter(B=2)
+ans6 = df_num.filter(pl.col("A") < 1, B=2, C=3)
+ans7 = df_num.filter([False, True, False, True, True, False])
+
+#END
+
+#NAME PG003
+#DESC 
+#START
+# リストに含まれるかどうかを判定するSeries.is_in()
+
+ans1 = df.get_column("Integer").is_in([2, 4, 6])
+
+ans2 = df.filter(pl.col("Integer").is_in([2, 4, 6]))
+
+#END
+
+#NAME PG004
+#DESC 
+#START
+# ユニーク行・重複行
+
+rng = np.random.default_rng(0)
+df_dup = pl.DataFrame(
+    {
+        "a": ["one", "one", "two", "two", "two", "three", "four"],
+        "b": ["x", "y", "x", "y", "x", "x", "x"],
+        "c": rng.random(7),
+    }
+)
+
+ans1 = df_dup.unique(subset=["a", "b"])
+
+ans2 = df_dup.unique(subset=["a"])
+
+ans3 = df_dup.unique(subset=["a"], keep="last")
+
+ans4 = df_dup.unique(subset=["a"], keep="none")
+
+ans5 = df_dup.is_duplicated()
+
+ans6 = df_dup.get_column("a").is_duplicated()
+
+
+#END
+
+#NAME PG005
+#DESC 
+#START
+# .get_column()を使ったシリーズの選択
+ans1 = df.get_column("Integer")
+
+# .get_columns()を使ったシリーズの選択
+ans2 = type(df.get_columns())
+ans3 = df.get_columns()[1]
+
+ans4 = df.get_column_index("Float")
+
+# .select()を使った列選択
+ans5 = df.select("Integer")
+ans6 = df.select("Integer", "Float") 
+ans7 = df.select(pl.col("Integer"), pl.col("Float"))
+ans8 = df.select(pl.col("Integer")*2, pl.col("Float").sum())
+
+#END
+
+#NAME PG006
+#DESC 
+#START
+# 列の追加
+
+# 新しいシリーズの作成を伴う操作
+new_seires = (df.get_column("Integer") * 2).alias("Integer2")
+ans1 = df.with_columns(new_seires)
+
+# エクスプレッションによる操作
+new_column = (pl.col("Integer") * 2).alias("Integer2")
+ans2 = df.with_columns(new_column)
+
+# 既存の列名と同名の列を追加すると、追加ではなく更新になります。
+ans3 = df.with_columns(pl.col("Integer") * 100)
+
+# .with_columns()にエクスプレッションを複数渡すと、一度に複数の列を追加できます。
+ans4 = df.with_columns(
+    pl.sum("Integer").alias("Integer2"), (pl.col("Float") * 100).alias("Arange")
+)
+
+# 新しい列名をキーワード引数として指定することもできます。
+ans5 = df.with_columns(
+    Integer2=pl.sum("Integer"),
+    Arange=pl.col("Float") * 100
+)
+
+ans6 = df.with_row_count()
+
+
+#END
+
+#NAME PG007
+#DESC 
+#START
+pass
+#END
+
+#NAME PG008
+#DESC 
+#START
+pass
+#END
+
+#NAME PG009
+#DESC 
+#START
+pass
+#END
+
+#NAME PG010
+#DESC 
+#START
+pass
+#END
+
+
+
+
+
+<!--
+#NAME PG000
+#DESC 
+#START
+pass
+#END
+#TITLE
+
+#GLOBAL_NAME
+#GLOBAL_START
+#GLOBAL_END
+
+#NAME PG001
+#DESC 
+#START
+#END
+-EXIT
+-->

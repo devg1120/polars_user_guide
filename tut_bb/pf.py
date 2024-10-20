@@ -2,7 +2,6 @@ import polars as pl
 import numpy as np
 import re
 import sys
-import copy
 from pygments import highlight
 from pygments.lexers import Python3Lexer
 from pygments.formatters import TerminalFormatter
@@ -38,27 +37,13 @@ def display(t,s):
     print(s)
     print(RESET)
 
-class Config:
+#short_ans = False
+short_ans = True
 
-
-    is_short_ans = False
-
-    def __init__(self):
-        self.is_short_ans = False
-
-    def set_short_ans(self, v):
-        self.is_short_ans = v
-
-    def short_ans(self):
-        #return self.short_ans
-        return  self.is_short_ans
-        #return False
-        #return True
-
-
-#short_ans = True
-
-config = Config()
+#def set_short_ans():
+#   short_ans = True
+#def unset_short_ans():
+#   short_ans = False
 
 gv = {
       'pl':pl,
@@ -67,8 +52,6 @@ gv = {
       'timedelta':timedelta,
       'np':np,
       'display':display,
-      'config': copy.deepcopy(config),
-      #'config': Config(),
      }
 
 
@@ -123,7 +106,6 @@ def epna(title,stmt,desc,last,silent):
   lv = {}
   for i in range(n):
       lv['ans' + str(i+1)] = 'not anser'
-      gv['config'] = copy.deepcopy(config)
   try:
      exec(stmt,gv,lv)
      for i in range(n):
@@ -134,26 +116,20 @@ def epna(title,stmt,desc,last,silent):
               print(tup[1])
          else:
             if not silent:
-              #if short_ans:
-              #print("config.short_ans:",config.short_ans())
-              #if config.short_ans():
-              if gv["config"].short_ans():
+              if short_ans:
                 #print(BLUE + '=== ' + 'ans' + str(i+1))
-                print(RED + '*=== ' + title +':  ' +  'ans' + str(i+1) + RESET , end = " ") 
+                print(RED + '=== ' + title +':  ' +  'ans' + str(i+1) + RESET , end = " ") 
                 print(lv['ans' + str(i+1)])
               else:
                 #print(BLUE + '=== ' + 'ans' + str(i+1))
-                print(BLUE + '=== ' + title +':  ' +  'ans' + str(i+1) + RESET, end = " " ) 
+                print(BLUE + '=== ' + title +':  ' +  'ans' + str(i+1) + RESET ) 
                 print(lv['ans' + str(i+1)])
   except Exception as e:
       print(RED + "Exception" + RESET)
       print(e)
   if not silent  :
-     print(GREEN + title + RESET + " END")
-  if not silent  :
      if not last :
         key = input(">")
-        #key = input(GREEN + title + RESET + ">")
         if key == 'q':
             sys.exit()
 

@@ -1,0 +1,277 @@
+<!--
+https://blog.deepblue-ts.co.jp/data-processing/polars-tutorial-with-to-be-careful/
+-->
+
+#TITLE Expr
+
+#GLOBAL_NAME df
+#GLOBAL_START
+pl.DataFrame(
+    {
+        "ID": ["01","01","03"],
+        "Name": [
+            "tanaka",
+            "yamamoto",
+            "ueda",
+            ],
+        "Age": [ 45,33,58]
+    }
+)
+
+#GLOBAL_END
+#NAME PG001
+#DESC Expr
+#START
+expr1 = pl.col("ID", "Name")
+# または
+expr2 = pl.col(["ID", "Name"])
+# または
+expr3 = [pl.col("ID"), pl.col("Name")]
+
+ans1 = df.select(expr1)
+ans2 = df.select(expr2)
+ans3 = df.select(expr3)
+
+#END
+
+#NAME PG002
+#DESC  polarsのメソッド
+#START
+# その1 polarsのメソッド。例：
+mean_expr = pl.mean("Age") # -> Expr
+ans1 = df.select(mean_expr)
+
+# その2 polars.Expressionのメソッド。例：
+self_mean_expr = pl.col("Age").mean() # -> self (Expr)
+ans2 = df.select(self_mean_expr)
+
+# その3 polars.DataFrameのメソッド。例：
+ans3 = df.mean() # -> DataFrame
+
+# その4 polars.Seriesのメソッド。例：
+ans4 = pl.Series()
+
+#END
+
+#NAME PG003
+#DESC DataFrameの生成
+#START
+input_csv = "input.csv"
+df_csv = pl.read_csv(input_csv)
+ans1 = df_csv
+#input_json = "input.json"
+#df_json = pl.read_json(input_json)
+#ans2 = df_json
+
+#input_excel = "input.xlsx"
+#df_excel = pl.read_excel(input_excel)
+#ans3 = df_excel
+
+#END
+
+#NAME PG004
+#DESC 
+#START
+data = {
+    "店舗名": ["東京タワー店", "浅草寺店", "秋葉原店", "東京タワー店", "浅草寺店"],
+    "曜日": ["土曜日", "土曜日", "日曜日", "日曜日", "土曜日"],
+    "売上額": [500000, 300000, 450000, 600000, 350000],
+    "客数": [200, 150, 180, 250, 160]
+}
+
+df_dict1 = pl.DataFrame(data)
+
+# または
+
+df_dict2 = pl.from_dict(data)
+
+ans1 = df_dict1
+ans2 = df_dict2
+#END
+
+#NAME PG005
+#DESC 
+#START
+data = {
+    "店舗名": ["東京タワー店", "浅草寺店", "秋葉原店", "東京タワー店", "浅草寺店"],
+    "曜日": ["土曜日", "土曜日", "日曜日", "日曜日", "土曜日"],
+    "売上額": [500000, 300000, 450000, 600000, 350000],
+    "客数": [200, 150, 180, 250, 160]
+}
+
+df = pl.DataFrame(data)
+
+output_csv = "output.csv"
+df.write_csv(output_csv)
+
+output_json = "output.json"
+df.write_json(output_json)
+
+#END
+
+#NAME PG006
+#DESC 
+#START
+data = {
+    "店舗名": ["東京タワー店", "浅草寺店", "秋葉原店", "東京タワー店", "浅草寺店"],
+    "曜日": ["土曜日", "土曜日", "日曜日", "日曜日", "土曜日"],
+    "売上額": [500000, 300000, 450000, 600000, 350000],
+    "客数": [200, 150, 180, 250, 160]
+}
+
+df = pl.DataFrame(data)   
+
+print(df.shape)
+print(len(df))
+print(df.height)
+print(df.width)
+
+print(df.schema)
+print(df.columns)
+print(df.dtypes)
+
+select_columns = ["店舗名", "曜日", "客数"]
+
+df_selected_1 = df.select(
+    select_columns, 
+)
+print(df_selected_1)
+
+column_1 = ["店舗名"]
+column_2 = "曜日"
+column_3 = pl.col("客数")
+
+df_selected_badly = df.select(
+    column_1, column_2, column_3
+)
+print(df_selected_badly)
+
+
+select_columns_order = ["曜日", "店舗名", "客数", "売上額"]
+
+df_selected_2 = df.select(
+    select_columns_order, 
+)
+
+print(df_selected_2)
+
+exclude_columns = ["客数"]
+
+df_selected_3 = df.select(
+    pl.exclude(exclude_columns)
+)
+
+print(df_selected_3)
+
+select_elements = [
+    "店舗名", 
+    "曜日", 
+    pl.col("売上額").alias("Sales")
+]
+
+df_selected_4 = df.select(select_elements)
+print(df_selected_4)
+
+df_selected_5 = df.select(
+    pl.all()
+)
+print(df_selected_5)
+
+#END
+
+#NAME PG007
+#DESC 
+#START
+data = {
+    "店舗名": ["東京タワー店", "浅草寺店", "秋葉原店", "東京タワー店", "浅草寺店"],
+    "曜日": ["土曜日", "土曜日", "日曜日", "日曜日", "土曜日"],
+    "売上額": [500000, 300000, 450000, 600000, 350000],
+    "客数": [200, 150, 180, 250, 160]
+}
+
+df_example  = pl.DataFrame(data)   
+
+cmd = """df_example.get_column("売上額")"""
+display(cmd, eval(cmd))
+
+culc_columns = [
+    (
+        pl.col("売上額") / pl.col("客数")
+    ).alias("一人当たり売上"),
+    (
+        pl.col("売上額") % pl.col("客数")
+    ).alias("売上の剰余")
+]
+
+cmd = """df_example.select(
+    culc_columns
+)"""
+display(cmd, eval(cmd))
+
+cmd= """df_example.select(
+    pl.sum("売上額", "客数")
+)"""
+display(cmd, eval(cmd))
+
+
+cmd = """df_example.select(
+    pl.col("売上額", "客数").sum()
+)"""
+display(cmd, eval(cmd))
+
+
+cmd = """df_example.select(
+    pl.col("売上額", "客数")
+).sum()"""
+display(cmd, eval(cmd))
+
+
+cmd = """df_example.get_column(
+    "売上額"
+).sum()"""
+display(cmd, eval(cmd))
+
+
+cmd = "df_example.describe()"
+display(cmd, eval(cmd))
+
+cmd = """df_example.with_columns(
+    pl.lit("東京").alias("都道府県")
+)"""
+
+display(cmd, eval(cmd))
+
+
+cmd = """df_example.with_columns(
+    pl.when(
+        pl.col("売上額") == pl.max("売上額")
+    ).then(
+        pl.lit("売上が最高")
+    ).when(
+        pl.col("客数") == pl.max("客数")
+    ).then(
+        pl.lit("客数が最高")   # 実際には"売上が最高"が優先される
+    ).when(
+        pl.col("売上額") / pl.col("客数") == (pl.col("売上額") / pl.col("客数")).max()
+    ).then(
+        pl.lit("一人当たり売上が最高")
+    ).otherwise(
+        pl.col("店舗名") + pl.col("曜日")
+    ).alias("備考欄")
+)"""
+
+display(cmd, eval(cmd))
+#END
+<!--
+#TITLE
+
+#GLOBAL_NAME
+#GLOBAL_START
+#GLOBAL_END
+
+#NAME PG001
+#DESC 
+#START
+#END
+-EXIT
+-->

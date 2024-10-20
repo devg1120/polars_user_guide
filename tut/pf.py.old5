@@ -149,11 +149,8 @@ def epna(title,stmt,desc,last,silent):
       print(RED + "Exception" + RESET)
       print(e)
   if not silent  :
-     print(GREEN + title + RESET + " END")
-  if not silent  :
      if not last :
         key = input(">")
-        #key = input(GREEN + title + RESET + ">")
         if key == 'q':
             sys.exit()
 

@@ -1,0 +1,3 @@
+pygmentize -O style=monokai,linenos=0 -f terminal -g test.py
+pygmentize -O style=monokai,linenos=1 -f terminal -g test.py
+pygmentize -O style=monokai -f terminal -g test.py
