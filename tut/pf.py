@@ -11,6 +11,7 @@ from datetime import datetime
 from datetime import date
 from datetime import timedelta
 import numpy as np
+import seaborn as sns
 
 BLACK = '\033[30m'
 RED = '\033[31m'
@@ -66,6 +67,7 @@ gv = {
       'date':date,
       'timedelta':timedelta,
       'np':np,
+      'sns':sns,
       'display':display,
       'config': copy.deepcopy(config),
       #'config': Config(),
