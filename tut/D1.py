@@ -361,9 +361,31 @@ def func(x):
  
 # apply適用
 #series.apply(func)
-#series.map_elements(func)
+ans1 = series.map_elements(func)
+
+df2 = df.select("depth", "table", "color")
+
+ans2  = df2.with_columns(
+            color_rev =
+                #pl.col("color").apply(func)
+                pl.col("color").map_elements(func)
+           )
+
+
+
+# applyを使用しないでwhenを使ってもOK
+ans3 = df2.with_columns(
+    color_rev =
+    pl.when(pl.col("color") == "E")
+    .then(pl.lit("E"))
+    .when(pl.col("color") == "I")
+    .then(pl.lit("I"))
+    .otherwise(pl.lit("not_E_I"))
+)
 
 #END
+
+
 
 
 https://datasciencemore.com/polars-apply-dataframe/
@@ -381,129 +403,122 @@ def func(x):
     else:
         return 1
 
-ans1 = df.apply_row(func).to_series()
+# MODIFY  apply =>  map_rows
+# https://github.com/pola-rs/polars/issues/10744
+
+#df.apply(func).to_series()
+ans1 = df.map_rows(func).to_series()
+
+# dfにfuncを適用した結果を新しい列に格納
+ans2 = df.with_columns(
+         color_rev =
+            #df.apply(func).to_series()
+            df.map_rows(func).to_series()
+)
+
+
+ans3 = df.with_columns(
+    color_rev =
+    pl.when(pl.col("color") == "E")
+    .then(pl.col("depth"))
+    .when(pl.col("color") == "I")
+    .then(0)
+    .otherwise(1)
+)
 
 #END
 
-
+https://datasciencemore.com/polars-apply-dataframe-element/
 #NAME PG014
-#DESC
+#DESC apply：データフレームの要素処理
 #START
-pass
+dft = pl.read_csv("./csv/sns_diamonds.csv")
+df = dft.select("x", "y")
+def func(x):
+    return x*100
+ 
+# apply適用
+#df.select(pl.all().apply(func))
+ans1 = df.select(pl.all().map_elements(func))
+
+ans2 = df.select(pl.all().map_elements(lambda x:x*100))
 #END
 
 
 #NAME PG015
-#DESC
+#DESC drop_nulls：欠損値行削除
 #START
-pass
+df = pl.DataFrame(
+  {
+    "x":[1, 3, 2, 8, 10],
+    "y":[10, 4, None, 6, None],
+    "z":[None, 8, 7, 8, None]
+    }
+)
+ans1 = df
+
+# 欠損値がある行を削除
+ans2 = df.drop_nulls()
+
+# z列に欠損値がある行を削除
+#ans3 = df.filter(pl.col("z").is_null().is_not())
+ans3 = df.filter(pl.col("z").is_null().not_())
+
 #END
 
 
 #NAME PG016
-#DESC
+#DESC fill_null：欠損値置換
 #START
-pass
+df = pl.DataFrame(
+  {
+    "x":[1, 3, 2, 8, 10],
+    "y":[10, 4, None, 6, None],
+    "z":[None, 8, 7, 8, None]
+    }
+)
+ans1 = df
+
+# 欠損値を0に置換
+ans2 = df.fill_null(value=0)
+
+# 欠損値を0に置換 （value省略）
+ans3 = df.fill_null(0)
+
+# y列の欠損値を5に，z列の欠損値を3に置換
+ans4 = df.select(
+    "x",
+    pl.col("y").fill_null(5),
+    pl.col("z").fill_null(3)
+)
+
+# 欠損値を各列の平均で置換
+ans5 = df.fill_null(strategy="mean")
+
 #END
 
-
+<!--
 #NAME PG017
-#DESC
+#DESC 
 #START
-pass
+def aaaa():
+    ssss
+
+# comment
+
+akakakak # comment
+
+"aaa" sss "ssss" kkkk 'cccc'
+
+{ 
+ sas
+ asas
+ }
+
+[ 1,2,3]
+
 #END
-
-
-#NAME PG018
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG019
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG020
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG021
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG022
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG023
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG024
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG025
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG026
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG027
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG028
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG029
-#DESC
-#START
-pass
-#END
-
-
-#NAME PG030
-#DESC
-#START
-pass
-#END
-
+-->
 
 
 <!--

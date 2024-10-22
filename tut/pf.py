@@ -75,19 +75,59 @@ gv = {
 
 
 def syntx_highlight(code):
-    print(highlight(code, Python3Lexer(), TerminalFormatter()), end="")
-    #print(highlight(code, Python3Lexer(), Terminal256Formatter()), end="")
+    #print(highlight(code, Python3Lexer(), TerminalFormatter(colorscheme="xcode",linenos=True,full=True)), end="")
+    #print(highlight(code, Python3Lexer(), TerminalFormatter(bg="light",linenos=True,full=True)), end="")
+    #print(highlight(code, Python3Lexem(), TerminalTrueColorFormatter(bg="light",linenos=True,full=True)), end="")
+    print(highlight(code, Python3Lexer(), Terminal256Formatter()), end="")
 
 def er(title,stmt):
   lv = {'ans' : "not anser"}
   exec(stmt,gv,lv)
   return lv["ans"]
 
+def keyword(str):
+    r = re.sub('(def)', YELLOW +  '\\1' + RESET, str)  
+    r = re.sub('(if)' , YELLOW +  '\\1' + RESET, r)  
+    r = re.sub('(for)', YELLOW +  '\\1' + RESET, r)  
+    r = re.sub('(try)', YELLOW +  '\\1' + RESET, r)  
+    r = re.sub('(except)', YELLOW +  '\\1' + RESET, r)  
+    #r = re.sub('([=,.])', YELLOW +  '\\1' + RESET, r)  
+    return r
+
+def string(str):
+    r = re.sub('(\".*?\")',RED +  '\\1' + RESET, str)  # "--"
+    r = re.sub('(\'.*?\')',RED +  '\\1' + RESET, r)   # '--'
+    r = re.sub('([\(\)])',CYAN +  '\\1' + RESET, r)   # ( )
+    r = re.sub('([\{\}])',CYAN +  '\\1' + RESET, r)   # { }
+    return keyword(r)
+
+def comment(str):
+    m = re.match("^(.*)(\#.*)$",str)     
+    if m != None:
+        return m.group(1)  +  BLUE + m.group(2) + RESET
+
+    else:
+        #return GREEN + str + RESET
+        return string(str)
+
+def color(str):
+    return comment(str)
+
+def source_print(stmt):
+    stmt_list = stmt.split("\n")
+    cnt = 0
+    for line in stmt_list:
+        cnt += 1
+        print(str(cnt).zfill(2),end=" ")
+        #print(BLUE + line + RESET , end="\n")
+        print(color(line) , end="\n")
+
 def ep(title,stmt):
   print("---------------------------------------------")
   print(GREEN + title + RESET)
-  #print(" " + BLUE + stmt + RESET)
-  syntx_highlight(stmt)
+  print(" " + BLUE + stmt + RESET)
+  #syntx_highlight(stmt)
+  #source_print(stmt)
   lv = {'ans' : "not anser"}
   exec(stmt,gv,lv)
   print(lv["ans"])
@@ -114,14 +154,18 @@ def epn(title,stmt,n):
   input(">")
 
 
-def epna(title,stmt,desc,last,silent):
+def epna(title,stmt,desc,last,silent, source):
   ans_list = re.findall('ans[1-9]',stmt)
   n = len(ans_list)
   print("---------------------------------------------")
   print(GREEN + title + RESET + "     " + BRIGHT_YELLOW + desc + RESET)
   if not silent  :
     #print(" " + BLUE + stmt + RESET)
-    syntx_highlight(stmt)
+    #syntx_highlight(stmt)
+    source_print(stmt)
+  if source:
+      return
+
   lv = {}
   for i in range(n):
       lv['ans' + str(i+1)] = 'not anser'

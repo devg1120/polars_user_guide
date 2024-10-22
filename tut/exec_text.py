@@ -4,10 +4,11 @@ import pf as PF
 ###############################################
 def help():
    print("python exec_text.py -h")
-   print("python exec_text.py 001.py")
-   print("python exec_text.py 001.py 3")
-   print("python exec_text.py 001.py -i")
-   print("python exec_text.py 001.py -t")
+   print("python exec_text.py <file>    //exec walk")
+   print("python exec_text.py <file> 3  //exec one shot")
+   print("python exec_text.py <file> -i //index dump")
+   print("python exec_text.py <file> -t //exec through")
+   print("python exec_text.py <file> -s //souce dump")
    sys.exit()
 
 def main():
@@ -17,6 +18,7 @@ def main():
    gv_start_end = None
    silent = False
    through = False
+   source = False
    if len(args) <2:
        sys.exit()
 
@@ -47,6 +49,8 @@ def main():
           silent = True
       elif arg2 == "-t":
           through = True
+      elif arg2 == "-s":
+          source = True
       else:
          if arg2.isdecimal():
              #gv = "PG" + arg2.zfill(3)
@@ -102,7 +106,7 @@ def main():
       if through :
          PF.epna_t(test_case,PG, DESC )
       else:
-         PF.epna(test_case,PG, DESC, last, silent)
+         PF.epna(test_case,PG, DESC, last, silent, source)
    
 
 ###############################################
